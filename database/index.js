@@ -1,14 +1,16 @@
 require("dotenv/config");
 
-const { PrismaClient } = require("./prisma-sqlserver/client");
+// const {
+//   PrismaClient: PrismaClientServer,
+// } = require("./prisma-sqlserver/client");
+const {
+  PrismaClient: PrismaClientPostgres,
+} = require("./prisma-postgres/client");
 
 console.time();
+const prisma = new PrismaClientPostgres();
 
-const prisma = new PrismaClient();
-
-prisma.$queryRaw`select TOP 1 nomcli, codcli from sapiens_teste.dbo.e085cli`.then(
-  (data) => {
-    console.log(data.length);
-    console.timeEnd();
-  }
-);
+prisma.$queryRaw`select nomcli, codcli from tbl_cliente`.then((data) => {
+  console.log(data.length);
+  console.timeEnd();
+});

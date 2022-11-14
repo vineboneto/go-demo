@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlserver"
-  url      = env("DATABASE_URL_SQLSERVER")
+  provider = "postgresql"
+  url      = env("DATABASE_URL_POSTGRES")
 }
 
 model ignore {
