@@ -3,7 +3,7 @@ Fundamentos
 - Executar `go run <filename>`
 - Gerar binário `go build <filename>`
 - Gerar binário para SO `GOOS=windows go build <filename>`
-- Go é uma linguagem fortemente *tipada*
+- Go é uma linguagem fortemente _tipada_
 - Go não é necessariamente orientado a objetos
 - Go utiliza structs
 - Go não possui try catch, ele trata erros de uma forma diferente
@@ -11,10 +11,10 @@ Fundamentos
 
 # Estudar em go
 
-- [X] Trabalhar com vetor
-- [X] Arquivos
-- [X] Trabalhar com JSON
-- [X] Conexão com banco de dados
+- [x] Trabalhar com vetor
+- [x] Arquivos
+- [x] Trabalhar com JSON
+- [x] Conexão com banco de dados
 - [ ] Where Dinâmico database
 - [ ] Crud database
 - [ ] Threads
@@ -22,3 +22,8 @@ Fundamentos
 - [ ] Autenticação de usuário
 - [ ] RabbitMQ
 - [ ] Filas
+
+# Nice libs
+
+- Database (gorm)
+- Webservices (fiber)
