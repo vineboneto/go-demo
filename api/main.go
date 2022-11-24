@@ -3,101 +3,118 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"os"
+	"strconv"
 	"time"
 	"vineapi/database"
 	"vineapi/repo"
 	"vineapi/utils"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type Authentication struct {
-	Email string `json:"email" validate:"required,email"`
-	Senha string `json:"senha"`
+	Email string `json:"email" binding:"required,email"`
+	Senha string `json:"senha" binding:"required"`
 }
 
 func main() {
+	godotenv.Load()
 
-	defer utils.TimeExec(time.Now())
+	gin.SetMode(gin.ReleaseMode)
 
-	app := fiber.New()
+	router := gin.Default()
+
+	router.Use(gin.Recovery())
 
 	database.Connection()
 
-	app.Post("account/login", func(c *fiber.Ctx) error {
-		user := new(Authentication)
+	router.POST("account/login", func(c *gin.Context) {
+		var authRequest Authentication
 
-		c.BodyParser(user)
-
-		fmt.Println(user)
-
-		errors := utils.Validator(user)
-
-		if errors != nil {
-			return c.Status(fiber.ErrBadRequest.Code).JSON(errors)
+		if err := c.ShouldBindJSON(&authRequest); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
 
-		output := repo.FindEmail(user.Email)
+		output := repo.FindEmail(authRequest.Email)
 
 		if output.Id != 0 {
-			validatePass := utils.CompareHash(output.Senha, user.Senha)
+			validatePass := utils.CompareHash(output.Senha, authRequest.Senha)
 
 			if validatePass {
-				// Gerar jwt
 
-				return c.Status(200).JSON(fiber.Map{"id": output.Id})
+				jwt, err := utils.GenerateJWT(strconv.Itoa(output.Id), os.Getenv("JWT_SECRET"), time.Minute*15)
+
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+					return
+				}
+
+				refresh, err := utils.GenerateJWT(strconv.Itoa(output.Id), os.Getenv("REFRESH_SECRET_KEY"), time.Hour*24)
+
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+					return
+				}
+
+				c.JSON(http.StatusAccepted, gin.H{"token": jwt, "refresh": refresh})
+				return
 			}
 		}
 
-		return c.Status(fiber.ErrUnauthorized.Code).JSON(fiber.Map{"message": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 	})
 
-	app.Get("/account", func(c *fiber.Ctx) error {
+	// app.Get("/account", func(c *fiber.Ctx) error {
 
-		query := &repo.LoadUsersInput{}
+	// 	query := &repo.LoadUsersInput{}
 
-		c.QueryParser(query)
+	// 	c.QueryParser(query)
 
-		output := repo.LoadUser(query)
+	// 	output := repo.LoadUser(query)
 
-		return c.JSON(output)
-	})
+	// 	return c.JSON(output)
+	// })
 
-	app.Post("/account", func(c *fiber.Ctx) error {
+	// app.Post("/account", func(c *fiber.Ctx) error {
 
-		user := &repo.CreateUserInput{}
+	// 	user := &repo.CreateUserInput{}
 
-		c.BodyParser(user)
+	// 	c.BodyParser(user)
 
-		errors := utils.Validator(user)
+	// 	errors := utils.Validator(user)
 
-		if errors != nil {
-			return c.Status(fiber.ErrBadRequest.Code).JSON(errors)
-		}
+	// 	if errors != nil {
+	// 		return c.Status(fiber.ErrBadRequest.Code).JSON(errors)
+	// 	}
 
-		output := repo.FindEmail(user.Email)
+	// 	output := repo.FindEmail(user.Email)
 
-		if output.Id != 0 {
-			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"message": "Email já cadastrado"})
-		}
+	// 	if output.Id != 0 {
+	// 		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"message": "Email já cadastrado"})
+	// 	}
 
-		hasher := utils.GenerateHash(user.Senha)
+	// 	hasher := utils.GenerateHash(user.Senha)
 
-		user.Senha = hasher
+	// 	user.Senha = hasher
 
-		newId := repo.CreateUser(user)
-		return c.JSON(fiber.Map{"id": newId})
-	})
+	// 	newId := repo.CreateUser(user)
+	// 	return c.JSON(fiber.Map{"id": newId})
+	// })
 
-	app.Delete("/account", func(c *fiber.Ctx) error {
-		user := &repo.DeleteUserInput{}
+	// app.Delete("/account", func(c *fiber.Ctx) error {
+	// 	user := &repo.DeleteUserInput{}
 
-		c.BodyParser(&user)
+	// 	c.BodyParser(&user)
 
-		deletedId := repo.DeleteUser(user)
+	// 	deletedId := repo.DeleteUser(user)
 
-		return c.JSON(fiber.Map{"id": deletedId})
-	})
+	// 	return c.JSON(fiber.Map{"id": deletedId})
+	// })
 
-	log.Fatal(app.Listen(":3333"))
+	fmt.Println("Started at port 3333")
+	log.Fatal(router.Run(":3333"))
 }
