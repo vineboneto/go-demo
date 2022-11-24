@@ -34,6 +34,10 @@ type CreateUserInput struct {
 	LastName  string `json:"lastName" validate:"required"`
 }
 
+type DeleteUserInput struct {
+	Id int `json:"id"`
+}
+
 func CreateUser(user *CreateUserInput) int {
 
 	database.DB.Table("tbl_usuario").Create(&user)
@@ -41,14 +45,10 @@ func CreateUser(user *CreateUserInput) int {
 	return user.Id
 }
 
-func FindEmail(email string) *LoadUserOutput {
-	data := &LoadUserOutput{}
+func DeleteUser(user *DeleteUserInput) int {
+	database.DB.Table("tbl_usuario").Delete(&user)
 
-	database.DB.
-		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE email = '%s' LIMIT 1", email)).
-		Scan(&data)
-
-	return data
+	return user.Id
 }
 
 func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
@@ -66,4 +66,14 @@ func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
 	database.DB.Raw(s).Scan(&list)
 
 	return list
+}
+
+func FindEmail(email string) *LoadUserOutput {
+	data := &LoadUserOutput{}
+
+	database.DB.
+		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE email = '%s' LIMIT 1", email)).
+		Scan(&data)
+
+	return data
 }
