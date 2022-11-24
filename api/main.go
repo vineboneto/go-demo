@@ -3,16 +3,16 @@ package main
 import (
 	"log"
 	"time"
-	"vine-api/database"
-	model "vine-api/models"
-	"vine-api/repo"
+	"vineapi/database"
+	"vineapi/repo"
+	"vineapi/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
 
-	defer TimeExec(time.Now())
+	defer utils.TimeExec(time.Now())
 
 	app := fiber.New()
 
@@ -20,7 +20,7 @@ func main() {
 
 	app.Get("/users", func(c *fiber.Ctx) error {
 
-		query := &repo.QueryLoadUsers{}
+		query := &repo.LoadUsersInput{}
 
 		c.QueryParser(query)
 
@@ -31,22 +31,28 @@ func main() {
 
 	app.Post("/users", func(c *fiber.Ctx) error {
 
-		user := &model.User{}
+		user := &repo.CreateUserInput{}
 
 		c.BodyParser(user)
 
-		errors := Validator(user)
+		errors := utils.Validator(user)
 
 		if errors != nil {
 			return c.Status(fiber.ErrBadRequest.Code).JSON(errors)
 		}
 
-		// Verificar se email já existe
-		// Gerar hash de senha
-		// Cadastrar no banco
+		output := repo.FindEmail(user.Email)
 
-		repo.CreateUser(user)
-		return c.SendStatus(200)
+		if output.Id != 0 {
+			return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{"message": "Email já cadastrado"})
+		}
+
+		hasher := utils.GenerateHash(user.Senha)
+
+		user.Senha = hasher
+
+		newId := repo.CreateUser(user)
+		return c.JSON(fiber.Map{"id": newId})
 	})
 
 	log.Fatal(app.Listen(":3333"))

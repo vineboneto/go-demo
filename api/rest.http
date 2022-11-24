@@ -2,7 +2,7 @@
 
 ## GET
 
-GET {{url}}/users?id=1 HTTP/1.1
+GET {{url}}/users?limit=20 HTTP/1.1
 Content-Type: application/json
 
 ### POST
@@ -11,6 +11,8 @@ POST {{url}}/users HTTP/1.1
 Content-Type: application/json
 
 {
+  "senha": "1234",
+  "email": "vineboneto@gmail.com",
   "firstName": "Vinicius",
   "lastName": "Boneto"
 }
