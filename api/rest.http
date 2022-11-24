@@ -1,0 +1,16 @@
+@url = http://localhost:3333
+
+## GET
+
+GET {{url}}/users?id=1 HTTP/1.1
+Content-Type: application/json
+
+### POST
+
+POST {{url}}/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "firstName": "Vinicius",
+  "lastName": "Boneto"
+}
