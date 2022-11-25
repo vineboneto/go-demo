@@ -25,42 +25,34 @@ func CompareHash(hasher string, payload string) bool {
 	return err == nil
 }
 
-func GenerateJWT(payload, secretKey string, expires time.Duration) (string, error) {
-	var mySigningKey = []byte(secretKey)
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-
-	claims["sub"] = payload
+func GenerateJWT(sub, secretKey string, expires time.Duration) (string, error) {
+	claims := jwt.MapClaims{}
+	claims["sub"] = sub
 	claims["exp"] = time.Now().Add(expires).Unix()
 
-	tokenString, err := token.SignedString(mySigningKey)
+	to := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := to.SignedString([]byte(secretKey))
 
 	if err != nil {
 		log.Fatalf("Something Went Wrong: %s", err.Error())
 		return "", err
 	}
-	return tokenString, nil
+	return token, nil
 }
 
-func SignJWT(digest string, secretKey string) (jwt.MapClaims, error) {
-	var mySigningKey = []byte(secretKey)
+func SignJWT(digest, secretKey string) (jwt.RegisteredClaims, error) {
 
-	token, err := jwt.Parse(digest, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("there was an error in parsing")
-		}
-		return mySigningKey, nil
+	claims := jwt.RegisteredClaims{}
+
+	parser, _ := jwt.ParseWithClaims(digest, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
 	})
 
-	if err != nil {
-		return nil, errors.New("invalid token")
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
+	if parser.Valid {
 		return claims, nil
 	}
 
-	return nil, errors.New("invalid claims")
+	return claims, errors.New("token expired")
 
 }

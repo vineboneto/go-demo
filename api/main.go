@@ -5,6 +5,7 @@ import (
 	"log"
 	"vineapi/controller"
 	"vineapi/database"
+	"vineapi/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -20,7 +21,7 @@ func main() {
 	database.Connection()
 
 	router.POST("account/login", controller.AuthUser)
-	router.GET("/account", controller.LoadAllUser)
+	router.GET("/account", middleware.Auth(), controller.LoadAllUser)
 	router.POST("/account", controller.CreateUser)
 	router.DELETE("/account", controller.DeleteUser)
 
