@@ -1,4 +1,4 @@
-package vineapi
+package main
 
 import (
 	"log"

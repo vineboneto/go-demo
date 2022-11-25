@@ -14,12 +14,12 @@ type LoadUserOutput struct {
 }
 
 type LoadUsersInput struct {
-	Id        int    `json:"id"`
-	Email     string `json:"email"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Limit     int    `json:"limit"`
-	Page      int    `json:"page"`
+	Id        int    `json:"id" form:"id"`
+	Email     string `json:"email" form:"email"`
+	FirstName string `json:"firstName" form:"firstName"`
+	LastName  string `json:"lastName" form:"lastName"`
+	Limit     int    `json:"limit" form:"limit"`
+	Page      int    `json:"page" form:"page"`
 }
 
 type FindEmailInput struct {
@@ -28,10 +28,10 @@ type FindEmailInput struct {
 
 type CreateUserInput struct {
 	Id        int    `json:"id"`
-	Email     string `json:"email" validate:"required,email"`
-	Senha     string `json:"senha" validate:"required"`
-	FirstName string `json:"firstName" validate:"required"`
-	LastName  string `json:"lastName" validate:"required"`
+	Email     string `json:"email" binding:"required,email"`
+	Senha     string `json:"senha" binding:"required"`
+	FirstName string `json:"firstName" binding:"required"`
+	LastName  string `json:"lastName" binding:"required"`
 }
 
 type DeleteUserInput struct {
@@ -68,11 +68,21 @@ func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
 	return list
 }
 
-func FindEmail(email string) *LoadUserOutput {
+func FindByEmail(email string) *LoadUserOutput {
 	data := &LoadUserOutput{}
 
 	database.DB.
 		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE email = '%s' LIMIT 1", email)).
+		Scan(&data)
+
+	return data
+}
+
+func FindByID(id int) *LoadUserOutput {
+	data := &LoadUserOutput{}
+
+	database.DB.
+		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE id = %d LIMIT 1", id)).
 		Scan(&data)
 
 	return data
