@@ -1,16 +1,18 @@
 package repo
 
 import (
+	"encoding/json"
 	"fmt"
 	"vineapi/database"
 )
 
 type LoadUserOutput struct {
-	Id        int    `json:"id"`
-	Email     string `json:"email"`
-	Senha     string `json:"-"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	Id        int             `json:"id"`
+	Email     string          `json:"email"`
+	Senha     string          `json:"-"`
+	FirstName string          `json:"firstName"`
+	LastName  string          `json:"lastName"`
+	Grupos    json.RawMessage `json:"grupos"`
 }
 
 type LoadUsersInput struct {
@@ -18,8 +20,8 @@ type LoadUsersInput struct {
 	Email     string `json:"email" form:"email"`
 	FirstName string `json:"firstName" form:"firstName"`
 	LastName  string `json:"lastName" form:"lastName"`
-	Limit     int    `json:"limit" form:"limit"`
 	Page      int    `json:"page" form:"page"`
+	Limit     int    `json:"limit" form:"limit"`
 }
 
 type FindEmailInput struct {
@@ -55,13 +57,23 @@ func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
 
 	list := []*LoadUserOutput{}
 
-	s := database.Build().
-		Select("*").
-		From("tbl_usuario").
-		Where().And("id = %d", input.Id).AndLike("first_name LIKE '%s'", input.FirstName).
-		Offset(input.Page).
-		Limit(input.Limit).
-		String()
+	where := database.Build().Where().And("u.id = %d", input.Id).String()
+
+	limitOffset := database.Build().Limit(input.Limit).Offset(input.Page).String()
+
+	s := fmt.Sprintf(`
+		SELECT 
+			u.id, 
+			u.first_name,
+			u.last_name,
+			(
+				SELECT json_agg(gr.nome) FROM tbl_grupoacesso gr
+				INNER JOIN tbl_grupoacesso_usuario gu ON gu.id_grupoacesso = gr.id AND gu.id_usuario = u.id
+			) AS grupos
+		FROM tbl_usuario u
+		%s
+		%s
+	`, where, limitOffset)
 
 	database.DB.Raw(s).Scan(&list)
 
@@ -82,8 +94,19 @@ func FindByID(id int) *LoadUserOutput {
 	data := &LoadUserOutput{}
 
 	database.DB.
-		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE id = %d LIMIT 1", id)).
-		Scan(&data)
+		Raw(fmt.Sprintf(`
+			SELECT 
+				u.id, 
+				u.first_name,
+				u.last_name,
+				(
+					SELECT json_agg(gr.nome) FROM tbl_grupoacesso gr
+					INNER JOIN tbl_grupoacesso_usuario gu ON gu.id_grupoacesso = gr.id AND gu.id_usuario = u.id
+				) AS grupos
+			FROM tbl_usuario u
+			WHERE u.id = %d LIMIT 1
+		`, id)).
+		Scan(data)
 
 	return data
 }

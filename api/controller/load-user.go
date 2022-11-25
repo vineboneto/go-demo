@@ -9,11 +9,11 @@ import (
 
 func LoadAllUser(c *gin.Context) {
 
-	query := repo.LoadUsersInput{}
+	query := &repo.LoadUsersInput{}
 
-	c.BindQuery(&query)
+	c.BindQuery(query)
 
-	output := repo.LoadUser(&query)
+	output := repo.LoadUser(query)
 
 	c.JSON(http.StatusOK, output)
 }

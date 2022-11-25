@@ -21,7 +21,7 @@ func main() {
 	database.Connection()
 
 	router.POST("account/login", controller.AuthUser)
-	router.GET("/account", middleware.Auth(), controller.LoadAllUser)
+	router.GET("/account", middleware.Auth("FLUXO"), controller.LoadAllUser)
 	router.POST("/account", controller.CreateUser)
 	router.DELETE("/account", controller.DeleteUser)
 

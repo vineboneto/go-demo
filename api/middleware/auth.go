@@ -1,15 +1,19 @@
 package middleware
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"vineapi/repo"
 	"vineapi/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thoas/go-funk"
 )
 
-func Auth() gin.HandlerFunc {
+func Auth(role string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		auth := c.Request.Header.Get("Authorization")
@@ -23,14 +27,31 @@ func Auth() gin.HandlerFunc {
 
 		sub, err := utils.SignJWT(token, os.Getenv("JWT_SECRET"))
 
-		c.Set("sub", sub)
+		userId, _ := strconv.Atoi(sub.Subject)
+
+		c.Set("sub", userId)
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": err.Error()})
 			return
 		}
 
-		// Buscar usuário no banco com os grupos de acesso
+		user := repo.FindByID(userId)
+
+		gruposJSON, _ := user.Grupos.MarshalJSON()
+
+		var grupos []string
+
+		json.Unmarshal(gruposJSON, &grupos)
+
+		exist := funk.Find(grupos, func(x string) bool {
+			return x == role
+		})
+
+		if exist == nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Forbidden"})
+			return
+		}
 
 		c.Next()
 	}
