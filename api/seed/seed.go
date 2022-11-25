@@ -10,17 +10,8 @@ import (
 )
 
 func main() {
-	database.Connection()
 
-	database.DB.Exec(`
-		CREATE TABLE IF NOT EXISTS tbl_usuario (
-			id SERIAL PRIMARY KEY NOT NULL,
-			email VARCHAR (255) NOT NULL UNIQUE,
-			senha VARCHAR (255) NOT NULL,
-			last_name VARCHAR(255) NOT NULL,
-			first_name VARCHAR(255) NOT NULL		
-		);
-	`)
+	database.Connection()
 
 	for i := 0; i < 1000; i++ {
 		senhaHash, err := bcrypt.GenerateFromPassword([]byte(faker.Password()), bcrypt.DefaultCost)
