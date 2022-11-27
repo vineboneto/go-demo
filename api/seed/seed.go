@@ -28,11 +28,11 @@ func main() {
 
 	}
 
-	database.DB.
+	database.GetPG().
 		Table("tbl_usuario").
 		CreateInBatches(users, len(users))
 
-	database.DB.Transaction(func(tx *gorm.DB) error {
+	database.GetPG().Transaction(func(tx *gorm.DB) error {
 		senhaHash, _ := bcrypt.GenerateFromPassword([]byte("1234"), bcrypt.DefaultCost)
 
 		grupo := struct {

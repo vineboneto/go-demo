@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var dbContextPG *gorm.DB
 
 func Connection() {
 	dns := "host=localhost user=postgres dbname=go password=1234 sslmode=disable"
@@ -15,5 +15,9 @@ func Connection() {
 		panic(err)
 	}
 
-	DB = db
+	dbContextPG = db
+}
+
+func GetPG() *gorm.DB {
+	return dbContextPG
 }

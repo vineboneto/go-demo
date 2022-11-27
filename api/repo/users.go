@@ -42,13 +42,13 @@ type DeleteUserInput struct {
 
 func CreateUser(user *CreateUserInput) int {
 
-	database.DB.Table("tbl_usuario").Create(&user)
+	database.GetPG().Table("tbl_usuario").Create(&user)
 
 	return user.Id
 }
 
 func DeleteUser(user *DeleteUserInput) int {
-	database.DB.Table("tbl_usuario").Delete(&user)
+	database.GetPG().Table("tbl_usuario").Delete(&user)
 
 	return user.Id
 }
@@ -75,7 +75,7 @@ func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
 		%s
 	`, where, limitOffset)
 
-	database.DB.Raw(s).Scan(&list)
+	database.GetPG().Raw(s).Scan(&list)
 
 	return list
 }
@@ -83,7 +83,7 @@ func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
 func FindByEmail(email string) *LoadUserOutput {
 	data := &LoadUserOutput{}
 
-	database.DB.
+	database.GetPG().
 		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE email = '%s' LIMIT 1", email)).
 		Scan(&data)
 
@@ -93,7 +93,7 @@ func FindByEmail(email string) *LoadUserOutput {
 func FindByID(id int) *LoadUserOutput {
 	data := &LoadUserOutput{}
 
-	database.DB.
+	database.GetPG().
 		Raw(fmt.Sprintf(`
 			SELECT 
 				u.id, 
