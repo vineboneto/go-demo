@@ -1,61 +1,26 @@
 package repo
 
 import (
-	"encoding/json"
 	"fmt"
+	"vineapi/core"
 	"vineapi/database"
 )
 
-type LoadUserOutput struct {
-	Id        int             `json:"id"`
-	Email     string          `json:"email"`
-	Senha     string          `json:"-"`
-	FirstName string          `json:"firstName"`
-	LastName  string          `json:"lastName"`
-	Grupos    json.RawMessage `json:"grupos"`
-}
-
-type LoadUsersInput struct {
-	Id        int    `json:"id" form:"id"`
-	Email     string `json:"email" form:"email"`
-	FirstName string `json:"firstName" form:"firstName"`
-	LastName  string `json:"lastName" form:"lastName"`
-	Page      int    `json:"page" form:"page"`
-	Limit     int    `json:"limit" form:"limit"`
-}
-
-type FindEmailInput struct {
-	Email string
-}
-
-type CreateUserInput struct {
-	Id        int    `json:"id"`
-	Email     string `json:"email" binding:"required,email"`
-	Senha     string `json:"senha" binding:"required"`
-	FirstName string `json:"firstName" binding:"required"`
-	LastName  string `json:"lastName" binding:"required"`
-}
-
-type DeleteUserInput struct {
-	Id int `json:"id"`
-}
-
-func CreateUser(user *CreateUserInput) int {
+func CreateUser(user *core.CreateUserInput) int {
 
 	database.GetPG().Table("tbl_usuario").Create(&user)
 
 	return user.Id
 }
-
-func DeleteUser(user *DeleteUserInput) int {
+func DeleteUser(user *core.DeleteUserInput) int {
 	database.GetPG().Table("tbl_usuario").Delete(&user)
 
 	return user.Id
 }
 
-func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
+func LoadUser(input *core.LoadUsersInput) []*core.LoadUserOutput {
 
-	list := []*LoadUserOutput{}
+	list := []*core.LoadUserOutput{}
 
 	where := database.Build().Where().And("u.id = %d", input.Id).String()
 
@@ -80,8 +45,8 @@ func LoadUser(input *LoadUsersInput) []*LoadUserOutput {
 	return list
 }
 
-func FindByEmail(email string) *LoadUserOutput {
-	data := &LoadUserOutput{}
+func FindByEmail(email string) *core.LoadUserOutput {
+	data := &core.LoadUserOutput{}
 
 	database.GetPG().
 		Raw(fmt.Sprintf("SELECT * FROM tbl_usuario WHERE email = '%s' LIMIT 1", email)).
@@ -90,8 +55,8 @@ func FindByEmail(email string) *LoadUserOutput {
 	return data
 }
 
-func FindByID(id int) *LoadUserOutput {
-	data := &LoadUserOutput{}
+func FindByID(id int) *core.LoadUserOutput {
+	data := &core.LoadUserOutput{}
 
 	database.GetPG().
 		Raw(fmt.Sprintf(`

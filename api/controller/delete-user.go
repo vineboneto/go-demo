@@ -2,13 +2,14 @@ package controller
 
 import (
 	"net/http"
+	"vineapi/core"
 	"vineapi/repo"
 
 	"github.com/gin-gonic/gin"
 )
 
 func DeleteUser(c *gin.Context) {
-	user := repo.DeleteUserInput{}
+	user := core.DeleteUserInput{}
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

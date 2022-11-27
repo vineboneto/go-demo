@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"vineapi/core"
 	"vineapi/database"
-	"vineapi/repo"
 
 	"github.com/bxcodec/faker/v3"
 	"golang.org/x/crypto/bcrypt"
@@ -14,12 +14,12 @@ func main() {
 
 	database.Connection()
 
-	users := []repo.CreateUserInput{}
+	users := []core.CreateUserInput{}
 
 	for i := 0; i < 1000; i++ {
 		senhaHash, _ := bcrypt.GenerateFromPassword([]byte(faker.Password()), bcrypt.DefaultCost)
 
-		users = append(users, repo.CreateUserInput{
+		users = append(users, core.CreateUserInput{
 			FirstName: faker.FirstName(),
 			LastName:  faker.LastName(),
 			Email:     faker.Email(),
@@ -40,7 +40,7 @@ func main() {
 			Nome string
 		}{Nome: "FLUXO", Id: 1}
 
-		usuario := &repo.CreateUserInput{
+		usuario := &core.CreateUserInput{
 			FirstName: "Vinicius",
 			LastName:  "Boneto",
 			Email:     "vineboneto@gmail.com",

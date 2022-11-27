@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"vineapi/core"
 	"vineapi/repo"
 	"vineapi/utils"
 
@@ -10,7 +11,7 @@ import (
 
 func CreateUser(c *gin.Context) {
 
-	user := &repo.CreateUserInput{}
+	user := &core.CreateUserInput{}
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

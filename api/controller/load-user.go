@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"vineapi/core"
 	"vineapi/repo"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 
 func LoadAllUser(c *gin.Context) {
 
-	query := &repo.LoadUsersInput{}
+	query := &core.LoadUsersInput{}
 
 	c.BindQuery(query)
 
