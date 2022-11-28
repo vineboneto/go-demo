@@ -1,14 +1,12 @@
 package core
 
-import "encoding/json"
-
 type LoadUserOutput struct {
-	UsuarioId int             `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
-	Email     string          `json:"email"`
-	Senha     string          `json:"-"`
-	FirstName string          `json:"firstName"`
-	LastName  string          `json:"lastName"`
-	Grupos    json.RawMessage `json:"grupos" gorm:"type:json;default:'[]'"`
+	UsuarioId int    `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
+	Email     string `json:"email"`
+	Senha     string `json:"-"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Grupos    []byte `json:"grupos" gorm:"type:json;default:'[]'"`
 }
 
 type LoadUsersInput struct {

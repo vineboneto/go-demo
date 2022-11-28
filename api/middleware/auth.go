@@ -38,11 +38,9 @@ func Auth(role string) gin.HandlerFunc {
 
 		user := repo.FindByID(userId)
 
-		gruposJSON, _ := user.Grupos.MarshalJSON()
-
 		var grupos []string
 
-		json.Unmarshal(gruposJSON, &grupos)
+		json.Unmarshal(user.Grupos, &grupos)
 
 		exist := funk.Find(grupos, func(x string) bool {
 			return x == role
