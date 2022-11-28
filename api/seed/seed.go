@@ -57,7 +57,7 @@ func main() {
 		grupoUsuario := struct {
 			IdGrupoacesso int
 			IdUsuario     int
-		}{IdGrupoacesso: 1, IdUsuario: usuario.IdUsuario}
+		}{IdGrupoacesso: 1, IdUsuario: usuario.UsuarioId}
 
 		tx.
 			Table("tbl_grupoacesso_usuario").

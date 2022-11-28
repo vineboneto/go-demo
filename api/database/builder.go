@@ -1,16 +1,15 @@
 package database
 
 import (
-	"fmt"
 	"strings"
 )
 
 type Query struct {
-	q         string
-	listWhere []string
-	args      []any
-	limit     int
-	offset    int
+	raw         string
+	prefixWhere []string
+	args        []any
+	limit       int
+	offset      int
 }
 
 func Build() *Query {
@@ -18,52 +17,60 @@ func Build() *Query {
 
 }
 
+func (q *Query) Raw(raw string) *Query {
+	q.raw = raw
+	return q
+}
+
 func (q *Query) Where() *Query {
-	q.listWhere = append(q.listWhere, " WHERE 1 = 1 ")
+	q.prefixWhere = append(q.prefixWhere, " WHERE 1 = 1 ")
 	return q
 }
 
 func (q *Query) And(s string, v any) *Query {
 
 	if v != "" && v != 0 && v != nil {
-		q.listWhere = append(q.listWhere, s)
+		q.prefixWhere = append(q.prefixWhere, s)
 		q.args = append(q.args, v)
 	}
 	return q
 }
 
+func (q *Query) AndLike(s string, v string) *Query {
+
+	if v != "" {
+		q.prefixWhere = append(q.prefixWhere, s)
+		q.args = append(q.args, "%"+v+"%")
+	}
+	return q
+}
+
 func (q *Query) Offset(v int) *Query {
-	if v != 0 {
+	if v > 0 {
 		q.offset = v
 	}
 	return q
 }
 
 func (q *Query) Limit(v int) *Query {
-	if v != 0 {
+	if v > 0 {
 		q.limit = v
 	}
 	return q
 }
 
-func (q *Query) AndLike(s string, v string) *Query {
-	if v != "" {
-		q.listWhere = append(q.listWhere, fmt.Sprintf(s, "%"+v+"%"))
-	}
-	return q
-}
-
 func (q *Query) String() (string, []any) {
-	strLimit := ""
-	strOffset := ""
+	rawLimit := ""
+	rawOffset := ""
 
-	if q.limit != 0 {
-		strLimit = fmt.Sprintf(" LIMIT %d ", q.limit)
+	if q.limit > 0 {
+		q.args = append(q.args, q.limit)
+		rawLimit = " LIMIT ? "
+	}
+	if q.offset > 0 {
+		q.args = append(q.args, q.offset+q.limit-1)
+		rawOffset = " OFFSET ? "
 	}
 
-	if q.offset != 0 {
-		strOffset = fmt.Sprintf(" OFFSET %d ", q.offset+q.limit-1)
-	}
-
-	return strings.Join(q.listWhere, " AND ") + strOffset + strLimit, q.args
+	return q.raw + strings.Join(q.prefixWhere, " AND ") + rawLimit + rawOffset, q.args
 }

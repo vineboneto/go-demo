@@ -1,5 +1,5 @@
 @url = http://localhost:3333
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Njk2NTkzMjQsInN1YiI6IjEwMDEifQ.XPkPzEcA0bIVEWDXAkP_7Qfs0tL0u_T9z3wvtFDPAmI
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Njk2NzgzNTQsInN1YiI6IjEwMDEifQ.Nj1xcLn_J89e4l7s3c9eIfJ7pMETv2TskN41Ey5K_kY
 
 ## AUTH
 POST {{url}}/account/login HTTP/1.1
@@ -12,7 +12,7 @@ Content-Type: application/json
 
 
 ### GET
-GET {{url}}/account?limit=20 HTTP/1.1
+GET {{url}}/account?limit=5&firstName=Jo HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

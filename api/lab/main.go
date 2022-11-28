@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 	"vineapi/database"
 	"vineapi/utils"
@@ -24,13 +23,12 @@ type Grupoacesso struct {
 }
 
 type UsuarioRaw struct {
-	UsuarioId int      `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
-	Email     string   `json:"email"`
-	Senha     string   `json:"-"`
-	FirstName string   `json:"firstName"`
-	LastName  string   `json:"lastName"`
-	GruposRaw JSON     `json:"-" gorm:"type:json;default:'[]'"`
-	Grupos    []string `json:"grupos" gorm:"-"`
+	UsuarioId int    `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
+	Email     string `json:"email"`
+	Senha     string `json:"-"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Grupos    []byte `json:"grupos" gorm:"-"`
 }
 
 func queryByPreload() {
@@ -47,31 +45,27 @@ func queryByRaw() {
 	defer utils.TimeExec(time.Now(), "raw")
 	users := []UsuarioRaw{}
 
-	where, args := database.Build().Where().And("u.email  = ?", "vineboneto@gmail.com").String()
-
-	fmt.Println(where)
-	fmt.Println(args)
-
-	sql := fmt.Sprintf(`
-		SELECT 
-			u.id_usuario, 
-			u.first_name,
-			u.last_name,
-			u.senha,
-			(
-				SELECT json_agg(gr.nome) FROM tbl_grupoacesso gr
-				INNER JOIN tbl_grupoacesso_usuario gu ON
-					gu.id_grupoacesso = gr.id_grupoacesso AND
-					gu.id_usuario = u.id_usuario
-			) AS grupos_raw
-		FROM tbl_usuario u %s
-	`, where)
-
-	fmt.Println(sql)
+	sql, args := database.Build().
+		Raw(`
+			SELECT 
+				u.id_usuario, 
+				u.first_name,
+				u.last_name,
+				u.senha,
+				(
+					SELECT json_agg(gr.nome) FROM tbl_grupoacesso gr
+					INNER JOIN tbl_grupoacesso_usuario gu ON
+						gu.id_grupoacesso = gr.id_grupoacesso AND
+						gu.id_usuario = u.id_usuario
+				) AS grupos
+			FROM tbl_usuario u
+		`).
+		Where().
+		Limit(0).
+		Offset(0).
+		String()
 
 	database.GetPG().Raw(sql, args...).Scan(&users)
-
-	fmt.Println(users)
 
 }
 

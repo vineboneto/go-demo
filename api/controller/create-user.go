@@ -20,7 +20,7 @@ func CreateUser(c *gin.Context) {
 
 	output := repo.FindByEmail(user.Email)
 
-	if output.IdUsuario != 0 {
+	if output.UsuarioId != 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Email já cadastrado"})
 		return
 	}
