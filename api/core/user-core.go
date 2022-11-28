@@ -3,7 +3,7 @@ package core
 import "encoding/json"
 
 type LoadUserOutput struct {
-	Id        int             `json:"id"`
+	IdUsuario int             `json:"usuarioId"`
 	Email     string          `json:"email"`
 	Senha     string          `json:"-"`
 	FirstName string          `json:"firstName"`
@@ -12,7 +12,7 @@ type LoadUserOutput struct {
 }
 
 type LoadUsersInput struct {
-	Id        int    `json:"id" form:"id"`
+	IdUsuario int    `json:"id" form:"idUsuario"`
 	Email     string `json:"email" form:"email"`
 	FirstName string `json:"firstName" form:"firstName"`
 	LastName  string `json:"lastName" form:"lastName"`
@@ -25,7 +25,7 @@ type FindEmailInput struct {
 }
 
 type CreateUserInput struct {
-	Id        int    `json:"id"`
+	IdUsuario int    `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
 	Email     string `json:"email" binding:"required,email"`
 	Senha     string `json:"senha" binding:"required"`
 	FirstName string `json:"firstName" binding:"required"`
@@ -33,5 +33,5 @@ type CreateUserInput struct {
 }
 
 type DeleteUserInput struct {
-	Id int `json:"id"`
+	IdUsuario int `json:"usuarioId"`
 }

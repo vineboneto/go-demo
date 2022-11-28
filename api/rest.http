@@ -1,5 +1,5 @@
 @url = http://localhost:3333
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Njk0MDcyMzIsInN1YiI6IjEwMDMifQ.1GRwtaRPPwJRAiXUtXv2DW3DMgjj1-VPu5xtvhYBArM
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Njk2NDI3MzksInN1YiI6IjEwMDEifQ.Ggj8dvvDOTLcsUjnHK9yCyUn02Y4s9z0YfMlNLUMkvs
 
 ## AUTH
 POST {{url}}/account/login HTTP/1.1

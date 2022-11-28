@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"vineapi/core"
 	"vineapi/database"
 
@@ -30,15 +29,15 @@ func main() {
 
 	database.GetPG().
 		Table("tbl_usuario").
-		CreateInBatches(users, len(users))
+		CreateInBatches(users, 100)
 
 	database.GetPG().Transaction(func(tx *gorm.DB) error {
 		senhaHash, _ := bcrypt.GenerateFromPassword([]byte("1234"), bcrypt.DefaultCost)
 
 		grupo := struct {
-			Id   int
-			Nome string
-		}{Nome: "FLUXO", Id: 1}
+			IdGrupoacesso int
+			Nome          string
+		}{Nome: "FLUXO", IdGrupoacesso: 1}
 
 		usuario := &core.CreateUserInput{
 			FirstName: "Vinicius",
@@ -55,12 +54,10 @@ func main() {
 			Table("tbl_usuario").
 			Create(&usuario)
 
-		fmt.Println(usuario)
-
 		grupoUsuario := struct {
 			IdGrupoacesso int
 			IdUsuario     int
-		}{IdGrupoacesso: 1, IdUsuario: usuario.Id}
+		}{IdGrupoacesso: 1, IdUsuario: usuario.IdUsuario}
 
 		tx.
 			Table("tbl_grupoacesso_usuario").

@@ -26,19 +26,19 @@ func AuthUser(c *gin.Context) {
 
 	output := repo.FindByEmail(authRequest.Email)
 
-	if output.Id != 0 {
+	if output.IdUsuario != 0 {
 		validatePass := utils.CompareHash(output.Senha, authRequest.Senha)
 
 		if validatePass {
 
-			jwt, err := utils.GenerateJWT(strconv.Itoa(output.Id), os.Getenv("JWT_SECRET"), time.Minute*15)
+			jwt, err := utils.GenerateJWT(strconv.Itoa(output.IdUsuario), os.Getenv("JWT_SECRET"), time.Minute*15)
 
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 				return
 			}
 
-			refresh, err := utils.GenerateJWT(strconv.Itoa(output.Id), os.Getenv("REFRESH_SECRET"), time.Hour*24)
+			refresh, err := utils.GenerateJWT(strconv.Itoa(output.IdUsuario), os.Getenv("REFRESH_SECRET"), time.Hour*24)
 
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})

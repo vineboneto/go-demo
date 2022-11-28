@@ -16,9 +16,9 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	exist := repo.FindByID(user.Id)
+	exist := repo.FindByID(user.IdUsuario)
 
-	if exist.Id != 0 {
+	if exist.IdUsuario != 0 {
 		deletedId := repo.DeleteUser(&user)
 
 		c.JSON(http.StatusOK, gin.H{"id": deletedId})
