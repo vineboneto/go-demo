@@ -15,13 +15,13 @@ Fundamentos
 - [x] Arquivos
 - [x] Trabalhar com JSON
 - [x] Conexão com banco de dados
-- [ ] Where Dinâmico database
-- [ ] Crud database
-- [ ] Threads
-- [ ] WebServices
-- [ ] Autenticação de usuário
-- [ ] RabbitMQ
-- [ ] Filas
+- [x] Where Dinâmico database
+- [x] Crud database
+- [x] Threads
+- [x] WebServices
+- [x] Autenticação de usuário
+- [ ] Trabalhar com excel
+- [ ] Realizar requisições
 
 # Nice libs
 
