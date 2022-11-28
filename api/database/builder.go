@@ -8,6 +8,7 @@ import (
 type Query struct {
 	q         string
 	listWhere []string
+	args      []any
 	limit     int
 	offset    int
 }
@@ -15,16 +16,6 @@ type Query struct {
 func Build() *Query {
 	return &Query{}
 
-}
-
-func (q *Query) Select(s string) *Query {
-	q.q = " SELECT " + s + " "
-	return q
-}
-
-func (q *Query) From(s string) *Query {
-	q.q = q.q + " FROM " + s
-	return q
 }
 
 func (q *Query) Where() *Query {
@@ -35,7 +26,8 @@ func (q *Query) Where() *Query {
 func (q *Query) And(s string, v any) *Query {
 
 	if v != "" && v != 0 && v != nil {
-		q.listWhere = append(q.listWhere, fmt.Sprintf(s, v))
+		q.listWhere = append(q.listWhere, s)
+		q.args = append(q.args, v)
 	}
 	return q
 }
@@ -61,7 +53,7 @@ func (q *Query) AndLike(s string, v string) *Query {
 	return q
 }
 
-func (q *Query) String() string {
+func (q *Query) String() (string, []any) {
 	strLimit := ""
 	strOffset := ""
 
@@ -73,5 +65,5 @@ func (q *Query) String() string {
 		strOffset = fmt.Sprintf(" OFFSET %d ", q.offset+q.limit-1)
 	}
 
-	return q.q + strings.Join(q.listWhere, " AND ") + strOffset + strLimit
+	return strings.Join(q.listWhere, " AND ") + strOffset + strLimit, q.args
 }

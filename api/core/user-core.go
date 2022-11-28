@@ -8,7 +8,7 @@ type LoadUserOutput struct {
 	Senha     string          `json:"-"`
 	FirstName string          `json:"firstName"`
 	LastName  string          `json:"lastName"`
-	Grupos    json.RawMessage `json:"grupos"`
+	Grupos    json.RawMessage `json:"grupos" gorm:"type:json;default:'[]'"`
 }
 
 type LoadUsersInput struct {

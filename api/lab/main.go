@@ -1,12 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 	"vineapi/database"
 	"vineapi/utils"
 )
+
+type JSON []byte
 
 type Usuario struct {
 	UsuarioId int            `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
@@ -23,31 +24,35 @@ type Grupoacesso struct {
 }
 
 type UsuarioRaw struct {
-	UsuarioId int             `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
-	Email     string          `json:"email"`
-	Senha     string          `json:"-"`
-	FirstName string          `json:"firstName"`
-	LastName  string          `json:"lastName"`
-	Grupos    json.RawMessage `json:"grupos"`
+	UsuarioId int      `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
+	Email     string   `json:"email"`
+	Senha     string   `json:"-"`
+	FirstName string   `json:"firstName"`
+	LastName  string   `json:"lastName"`
+	GruposRaw JSON     `json:"-" gorm:"type:json;default:'[]'"`
+	Grupos    []string `json:"grupos" gorm:"-"`
 }
 
 func queryByPreload() {
 	defer utils.TimeExec(time.Now(), "preload")
 
-	var user Usuario
+	var user []Usuario
 
-	database.GetPG().Table("tbl_usuario").Preload("Grupos").Where("id_usuario", 1001).First(&user)
-
-	fmt.Println(user)
+	database.GetPG().Table("tbl_usuario").Preload("Grupos").Find(&user)
 
 }
 
 func queryByRaw() {
 
 	defer utils.TimeExec(time.Now(), "raw")
-	user := &UsuarioRaw{}
+	users := []UsuarioRaw{}
 
-	database.GetPG().Raw(`
+	where, args := database.Build().Where().And("u.email  = ?", "vineboneto@gmail.com").String()
+
+	fmt.Println(where)
+	fmt.Println(args)
+
+	sql := fmt.Sprintf(`
 		SELECT 
 			u.id_usuario, 
 			u.first_name,
@@ -58,25 +63,23 @@ func queryByRaw() {
 				INNER JOIN tbl_grupoacesso_usuario gu ON
 					gu.id_grupoacesso = gr.id_grupoacesso AND
 					gu.id_usuario = u.id_usuario
-			) AS grupos
-		FROM tbl_usuario u
-		WHERE u.id_usuario = 1001 LIMIT 1
-	`).Scan(user)
+			) AS grupos_raw
+		FROM tbl_usuario u %s
+	`, where)
 
-	var grupos []string
+	fmt.Println(sql)
 
-	j, _ := user.Grupos.MarshalJSON()
+	database.GetPG().Raw(sql, args...).Scan(&users)
 
-	json.Unmarshal(j, &grupos)
+	fmt.Println(users)
 
-	fmt.Println(user, grupos)
 }
 
 func main() {
 
 	database.Connection()
 
-	queryByPreload()
+	// queryByPreload()
 	queryByRaw()
 
 }
