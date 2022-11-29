@@ -1,6 +1,9 @@
 package database
 
 import (
+	"fmt"
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -9,7 +12,10 @@ import (
 var dbContextPG *gorm.DB
 
 func Connection() {
-	dns := "host=localhost user=postgres dbname=go password=1234 sslmode=disable"
+
+	args := []any{os.Getenv("PG_HOST"), os.Getenv("PG_USER"), os.Getenv("PG_DB"), os.Getenv("PG_PASS")}
+
+	dns := fmt.Sprintf(`host=%s user=%s dbname=%s password=%s sslmode=disable`, args...)
 	db, err := gorm.Open(postgres.Open(dns), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "tbl_",

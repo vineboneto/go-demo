@@ -5,11 +5,13 @@ import (
 	"vineapi/database"
 
 	"github.com/bxcodec/faker/v3"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 func main() {
+	godotenv.Load()
 
 	database.Connection()
 

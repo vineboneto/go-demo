@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"time"
 	"vineapi/database"
 	"vineapi/utils"
+
+	"github.com/joho/godotenv"
 )
 
 type JSON []byte
@@ -38,6 +41,8 @@ func queryByPreload() {
 
 	database.GetPG().Table("tbl_usuario").Preload("Grupos").Find(&user)
 
+	fmt.Println(len(user))
+
 }
 
 func queryByRaw() {
@@ -60,20 +65,23 @@ func queryByRaw() {
 				) AS grupos
 			FROM tbl_usuario u
 		`).
-		Where().
-		Limit(0).
-		Offset(0).
 		String()
 
 	database.GetPG().Raw(sql, args...).Scan(&users)
+
+	fmt.Println(len(users))
 
 }
 
 func main() {
 
+	godotenv.Load()
+
 	database.Connection()
 
-	// queryByPreload()
-	queryByRaw()
+	for i := 0; i < 100; i++ {
+		queryByPreload()
+		queryByRaw()
+	}
 
 }
