@@ -27,28 +27,32 @@ func Auth(role string) gin.HandlerFunc {
 
 		sub, err := utils.SignJWT(token, os.Getenv("JWT_SECRET"))
 
-		userId, _ := strconv.Atoi(sub.Subject)
-
-		c.Set("sub", userId)
-
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": err.Error()})
 			return
 		}
 
+		userId, _ := strconv.Atoi(sub.Subject)
+
+		c.Set("sub", userId)
+
 		user := repo.FindByID(userId)
 
-		var grupos []string
+		if role != "" {
+			var grupos []string
 
-		json.Unmarshal(user.Grupos, &grupos)
+			gruposJSON, _ := user.Grupos.MarshalJSON()
 
-		exist := funk.Find(grupos, func(x string) bool {
-			return x == role
-		})
+			json.Unmarshal(gruposJSON, &grupos)
 
-		if exist == nil {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Forbidden"})
-			return
+			exist := funk.Find(grupos, func(x string) bool {
+				return x == role
+			})
+
+			if exist == nil {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Forbidden"})
+				return
+			}
 		}
 
 		c.Next()

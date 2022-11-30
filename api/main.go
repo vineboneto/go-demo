@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"vineapi/controller"
 	"vineapi/database"
-	"vineapi/middleware"
+	"vineapi/routes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -20,11 +18,8 @@ func main() {
 
 	database.Connection()
 
-	router.POST("account/login", controller.AuthUser)
-	router.GET("/account", middleware.Auth("FLUXO"), controller.LoadAllUser)
-	router.POST("/account", controller.CreateUser)
-	router.DELETE("/account", controller.DeleteUser)
+	routes.ApplyUserRoutes(router)
 
-	fmt.Println("Started at port 3333")
+	log.Println("Started at port 3333")
 	log.Fatal(router.Run(":3333"))
 }

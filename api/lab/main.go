@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
 	"vineapi/database"
 	"vineapi/utils"
@@ -41,7 +41,7 @@ func queryByPreload() {
 
 	database.GetPG().Table("tbl_usuario").Preload("Grupos").Find(&user)
 
-	fmt.Println(len(user))
+	log.Fatal(len(user))
 
 }
 
@@ -69,7 +69,7 @@ func queryByRaw() {
 
 	database.GetPG().Raw(sql, args...).Scan(&users)
 
-	fmt.Println(len(users))
+	log.Fatal(len(users))
 
 }
 

@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"fmt"
+	"log"
 	"time"
 )
 
 func TimeExec(start time.Time, name string) {
-	fmt.Printf("total %s: %s\n", name, time.Since(start))
+	log.Fatalf("total %s: %s\n", name, time.Since(start))
 }
