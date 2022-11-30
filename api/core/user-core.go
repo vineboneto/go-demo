@@ -2,11 +2,6 @@ package core
 
 import "encoding/json"
 
-const (
-	DEFAULT = ""
-	FLUXO   = "FLUXO"
-)
-
 type LoadUserOutput struct {
 	UsuarioId int             `json:"usuarioId" gorm:"primaryKey;column:id_usuario"`
 	Email     string          `json:"email"`
